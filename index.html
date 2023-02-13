@@ -20,14 +20,34 @@
                font-weight: 900;
           }
 
+          h1 {
+               color: #DC392D;
+          }
+
           main {
                display: flex;
                flex-direction: column;
           }
 
           input {
-               padding: 5px 10px;
+               padding: 10px 15px;
                outline: none;
+               border-radius: 5px;
+               border: 1px solid gray;
+          }
+
+          input[type="button"], input[type="reset"]  {
+               background-color: #DC392D;
+               color: white;
+               border: none;
+               padding: 10px 15px;
+               font-weight: 400;
+               font-size: 16px;
+               width: min-content;
+               cursor: pointer;
+          }
+          input[type="button"]:hover , input[type="reset"]:hover  {
+               background-color: #c23329;
           }
 
           .formulario {
@@ -59,18 +79,14 @@
           }
 
           .formulario form div.campos input {
-               flex: 3;
+               flex: 9;
           }
 
           .formulario form .botones {
                margin-left: auto;
           }
 
-          .formulario form .botones input[type="submit"] {
-               padding: 5px 15px;
-               text-align: center;
-               cursor: pointer;
-               width: min-content;
+          .formulario form .botones input[type="button"] {
                margin: auto 0 0 auto;
           }
 
@@ -85,6 +101,14 @@
                display: flex;
                flex-direction: column;
                gap: 20px;
+          }
+
+          .titulo--entradas {
+               color: #124d85;
+          }
+
+          .titulo--salidas {
+               color: #641285;
           }
 
           section div .formulario-filtro {
@@ -105,7 +129,7 @@
           }
 
           .formulario-filtro .campos-filtro input {
-               flex: 5;
+               flex: 7;
           }
 
           table {
@@ -157,38 +181,38 @@
                <form>
                     <div class="campos">
                          <label>Nombre:</label>
-                         <input type="text" id="nombre" placeholder="Nombre">
+                         <input type="text" id="nombre" placeholder="Nombre" required>
                     </div>
 
 
                     <div class="campos">
                          <label>Apellidos:</label>
-                         <input type="text" id="apellidos" placeholder="Apellidos">
+                         <input type="text" id="apellidos" placeholder="Apellidos" required>
                     </div>
 
 
                     <div class="campos">
                          <label>DNI:</label>
-                         <input type="text" id="dni" placeholder="DNI">
+                         <input type="text" id="dni" placeholder="DNI" required>
                     </div>
 
 
                     <div class="campos">
-                         <label>Persona de Contacto:</label>
-                         <input type="text" id="persona-contacto" placeholder="Persona de Contacto">
+                         <label>Contacto:</label>
+                         <input type="text" id="persona-contacto" placeholder="Persona de Contacto" required>
                     </div>
 
                     <div class="botones">
-                         <input type="submit" value="Registrar" id="registrar">
+                         <input type="button" value="Registrar" id="registrar">
                          <input type="reset" value="Limpiar formulario" id="limpiar-formulario">
-                         <input type="submit" value="Reiniciar registro" id="reiniciar-registro">
+                         <input type="button" value="Reiniciar registro" id="reiniciar-registro">
                     </div>
                </form>
           </div>
 
           <section>
                <div>
-                    <h2>Registro de entradas</h2>
+                    <h2 class="titulo--entradas">Registro de entradas</h2>
                     <div class="formulario-filtro">
                          <div class="campos-filtro">
                               <label for="">Filtrar por DNI:</label>
@@ -232,7 +256,7 @@
                     </table>
                </div>
                <div>
-                    <h2>Registro de salidas</h2>
+                    <h2 class="titulo--salidas">Registro de salidas</h2>
                     <div class="formulario-filtro">
                          <div class="campos-filtro">
                               <label for="">Filtrar por DNI:</label>
@@ -251,7 +275,7 @@
                                    <th>DNI</th>
                                    <th>Contacto</th>
                                    <th>Hora de entrada</th>
-                                   <th>Ha salido</th>
+                                   <th>Hora de salida</th>
                               </tr>
                          </thead>
 
