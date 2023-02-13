@@ -1,32 +1,4 @@
-// $("#dni-filtro--entrada").on("keyup", function () {
-//      var value = $(this).val().toLowerCase();
-//      $("#tabla-registro-entrada tr").filter(function () {
-//           $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
-//      });
-// });
-// $("#nombre-filtro--entrada").on("keyup", function () {
-//      var value = $(this).val().toLowerCase();
-//      $("#tabla-registro-entrada tr").filter(function () {
-//           $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
-//      });
-// });
-// $("#dni-filtro--salida").on("keyup", function () {
-//      var value = $(this).val().toLowerCase();
-//      $("#tabla-registro-salida tr").filter(function () {
-//           $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
-//      });
-// });
-// $("#nombre-filtro--salida").on("keyup", function () {
-//      var value = $(this).val().toLowerCase();
-//      $("#tabla-registro-salida tr").filter(function () {
-//           $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
-//      });
-// });
-// No se si esto es necesario xddddddddd
-
-
 let abrirConsulta = indexedDB.open("objetos", 1);
-
 let baseDatos;
 
 abrirConsulta.onsuccess = function () {
@@ -40,36 +12,41 @@ abrirConsulta.onerror = function () {
 abrirConsulta.onupgradeneeded = function () {
      let baseDatos = abrirConsulta.result;
 
-     if (!baseDatos.objectStoreNames.contains('almacenObjetos')) {
-          baseDatos.createObjectStore("almacenObjetos", { keyPath: 'id' });
+     if (!baseDatos.objectStoreNames.contains('entradas')) {
+          baseDatos.createObjectStore("entradas", { keyPath: 'id' });
+     }
+     if (!baseDatos.objectStoreNames.contains('salidas')) {
+          baseDatos.createObjectStore("salidas", { keyPath: 'id' });
      }
 };
 
 $('#registrar').click(function() {
      if(!verificarFormulario()) return
-     guardar();
+     registrar();
 });
 
-function guardar() {
+$('#reiniciar-registro').click(function() {
+     let transaccion = baseDatos.transaction("entradas", "readwrite");
+     let registroEntrada = transaccion.objectStore("entradas");
+     registroEntrada.clear();
+});
+
+function registrar() {
      let transaccion = baseDatos.transaction("almacenObjetos", "readwrite");
+     let registroEntrada = transaccion.objectStore("almacenObjetos");
 
-     //recuperamos el objectStore
-     let almacenValores = transaccion.objectStore("almacenObjetos");
-
-     //Recuperamos el valor del input
-     let registroEntrada = {
-          dni: $('#dni').val(),
+     let nuevoRegistro = {
+          id: $('#dni').val(),
           nombre: $('#nombre').val(),
           apellidos: $('#apellidos').val(),
           contacto: $('#persona-contacto').val(),
           horaEntrada: new Date().toLocaleTimeString('es-ES', { hour: "numeric", minute: "numeric"}),
      }
 
-     //insertamos en la base de datos
-     let res = almacenValores.put(miObjeto);
+     let insercion = registroEntrada.put(nuevoRegistro);
 
-     res.onerror = function () { error() };
-     res.onsuccess = function () { exito() };
+     insercion.onerror = function () { error() };
+     insercion.onsuccess = function () { exito() };
 }
 
 function error() {
@@ -84,28 +61,16 @@ function listar() {
      let transaccion = baseDatos.transaction("almacenObjetos");
      let almacenValores = transaccion.objectStore("almacenObjetos");
 
-     //abrimos un cursor
      let request = almacenValores.openCursor();
 
-     //si el cursor se abre con exito
      request.onsuccess = function () {
-          //recuperamos un objeto cursor que apunta a la primera fila
           let cursor = request.result;
 
-          if (cursor) { //el cursor es false si apunta a "nada"
-               let clave = cursor.key; //recuperar la clave
-               let valor = cursor.value; //recuperar el valor
-               let salida = "";
+          if (cursor) {
+               let clave = cursor.key;
+               let valor = cursor.value;
+               
                console.log(valor);
-               for (v in valor) {
-                    salida += valor[v] + ":";
-               }
-
-               $('#datos').append("<tr><td>" + clave + "</td><td>" + salida + "</td></tr>");
-               cursor.continue();
-
-          } else {
-               console.log("No hay más resultados");
           }
      };
 }
