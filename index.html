@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+     <meta charset="UTF-8">
+     <meta http-equiv="X-UA-Compatible" content="IE=edge">
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <title>Registro de entrada</title>
+
+     <style>
+          @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;400;800;900&display=swap');
+
+          * {
+               font-family: 'Inter', sans-serif;
+          }
+
+          h1,
+          h2 {
+               text-align: center;
+               font-weight: 900;
+          }
+
+          main {
+               display: flex;
+               flex-direction: column;
+          }
+
+          input {
+               padding: 5px 10px;
+               outline: none;
+          }
+
+          .formulario {
+               width: 60%;
+               min-width: 550px;
+               padding: 20px;
+               margin: 0 auto;
+               padding-bottom: 40px;
+               border-bottom: 1px solid #aaaaaa;
+          }
+
+          .formulario form {
+               display: flex;
+               flex-direction: column;
+               gap: 20px;
+          }
+
+          .formulario form div.campos {
+               display: flex;
+               flex-direction: row;
+               align-items: center;
+               gap: 10px;
+          }
+
+          .formulario form div.campos label {
+               text-align: right;
+
+               flex: 1;
+          }
+
+          .formulario form div.campos input {
+               flex: 3;
+          }
+
+          .formulario form .botones {
+               margin-left: auto;
+          }
+
+          .formulario form .botones input[type="submit"] {
+               padding: 5px 15px;
+               text-align: center;
+               cursor: pointer;
+               width: min-content;
+               margin: auto 0 0 auto;
+          }
+
+          main section {
+               display: grid;
+               grid-template-columns: repeat(2, 1fr);
+               gap: 40px;
+               padding: 20px;
+          }
+
+          main section div {
+               display: flex;
+               flex-direction: column;
+               gap: 20px;
+          }
+
+          section div .formulario-filtro {
+               display: flex;
+               flex-direction: column;
+               gap: 10px;
+          }
+
+          .formulario-filtro .campos-filtro {
+               display: flex;
+               flex-direction: row;
+               gap: 10px;
+               align-items: center;
+          }
+
+          .formulario-filtro .campos-filtro label {
+               flex: 2;
+          }
+
+          .formulario-filtro .campos-filtro input {
+               flex: 5;
+          }
+
+          table {
+               border-collapse: collapse;
+          }
+          thead {
+               color: white;
+               background-color: #124d85;
+               border-bottom: 3px solid rgb(37, 37, 37)
+          }
+          table.color-secundario thead {
+               background-color: #641285;
+          }
+
+          tbody tr:nth-child(odd) {
+               background-color: #2b7bc5;
+               color: white;
+          }
+
+          tbody tr:nth-child(even) {
+               background-color: #124d85;
+               color: white;
+          }
+
+          table tr th,
+          table tr td {
+               padding: 10px 15px;
+               text-align: center;
+          }
+          
+          table.color-secundario tbody tr:nth-child(odd) {
+               background-color: #8d22b8;
+               color: white;
+          }
+
+          table.color-secundario tbody tr:nth-child(even) {
+               background-color: #641285;
+               color: white;
+          }
+     </style>
+</head>
+
+<body>
+
+     <h1>Control de Visitas</h1>
+
+     <main>
+          <div class="formulario">
+               <form>
+                    <div class="campos">
+                         <label>Nombre:</label>
+                         <input type="text" id="nombre" placeholder="Nombre">
+                    </div>
+
+
+                    <div class="campos">
+                         <label>Apellidos:</label>
+                         <input type="text" id="apellidos" placeholder="Apellidos">
+                    </div>
+
+
+                    <div class="campos">
+                         <label>DNI:</label>
+                         <input type="text" id="dni" placeholder="DNI">
+                    </div>
+
+
+                    <div class="campos">
+                         <label>Persona de Contacto:</label>
+                         <input type="text" id="persona-contacto" placeholder="Persona de Contacto">
+                    </div>
+
+                    <div class="botones">
+                         <input type="submit" value="Registrar" id="registrar">
+                         <input type="reset" value="Limpiar formulario" id="limpiar-formulario">
+                         <input type="submit" value="Reiniciar registro" id="reiniciar-registro">
+                    </div>
+               </form>
+          </div>
+
+          <section>
+               <div>
+                    <h2>Registro de entradas</h2>
+                    <div class="formulario-filtro">
+                         <div class="campos-filtro">
+                              <label for="">Filtrar por DNI:</label>
+                              <input type="text" id="dni-filtro--entrada" placeholder="DNI">
+                         </div>
+                         <div class="campos-filtro">
+                              <label for="">Filtrar por nombre:</label>
+                              <input type="text" id="nombre-filtro--entrada" placeholder="Nombre">
+                         </div>
+                    </div>
+                    <table>
+                         <thead>
+                              <tr>
+                                   <th>Nombre</th>
+                                   <th>Apellidos</th>
+                                   <th>DNI</th>
+                                   <th>Contacto</th>
+                                   <th>Hora de entrada</th>
+                                   <th>Ha salido</th>
+                              </tr>
+                         </thead>
+
+                         <tbody id="tabla-registro-entrada">
+                              <tr>
+                                   <td>Adrián</td>
+                                   <td>Suárez</td>
+                                   <td>50572358H</td>
+                                   <td>Contacto</td>
+                                   <td>Hora de entrada</td>
+                                   <td>Ha salido</td>
+                              </tr>
+                              <tr>
+                                   <td>Nombre</td>
+                                   <td>Apellidos</td>
+                                   <td>DNI</td>
+                                   <td>Contacto</td>
+                                   <td>Hora de entrada</td>
+                                   <td>Ha salido</td>
+                              </tr>
+                         </tbody>
+                    </table>
+               </div>
+               <div>
+                    <h2>Registro de salidas</h2>
+                    <div class="formulario-filtro">
+                         <div class="campos-filtro">
+                              <label for="">Filtrar por DNI:</label>
+                              <input type="text" id="dni-filtro--salida" placeholder="DNI">
+                         </div>
+                         <div class="campos-filtro">
+                              <label for="">Filtrar por nombre:</label>
+                              <input type="text" id="nombre-filtro--salida" placeholder="Nombre">
+                         </div>
+                    </div>
+                    <table class="color-secundario">
+                         <thead>
+                              <tr>
+                                   <th>Nombre</th>
+                                   <th>Apellidos</th>
+                                   <th>DNI</th>
+                                   <th>Contacto</th>
+                                   <th>Hora de entrada</th>
+                                   <th>Ha salido</th>
+                              </tr>
+                         </thead>
+
+                         <tbody id="tabla-registro-salida">
+                              <tr>
+                                   <td>Adrián</td>
+                                   <td>Suárez</td>
+                                   <td>50572358H</td>
+                                   <td>Contacto</td>
+                                   <td>Hora de entrada</td>
+                                   <td>Ha salido</td>
+                              </tr>
+                              <tr>
+                                   <td>Nombre</td>
+                                   <td>Apellidos</td>
+                                   <td>DNI</td>
+                                   <td>Contacto</td>
+                                   <td>Hora de entrada</td>
+                                   <td>Ha salido</td>
+                              </tr>
+                         </tbody>
+
+                    </table>
+               </div>
+          </section>
+     </main>
+
+
+     <script type="text/javascript" src="js/jquery-3.6.1.js"></script>
+     <script type="text/javascript" src="js/script.js"></script>
+</body>
+
+</html>
