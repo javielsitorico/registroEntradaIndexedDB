@@ -14,17 +14,27 @@ abrirConsulta.onerror = function () {
 abrirConsulta.onupgradeneeded = function () {
      let baseDatos = abrirConsulta.result;
 
-     if (!baseDatos.objectStoreNames.contains('entradas')) {
-          baseDatos.createObjectStore("entradas", { keyPath: 'dni' });
+     if (!baseDatos.objectStoreNames.contains('entrada')) {
+          baseDatos.createObjectStore("entrada", { keyPath: 'dni' });
      }
-     if (!baseDatos.objectStoreNames.contains('salidas')) {
-          baseDatos.createObjectStore("salidas", { keyPath: 'dni' });
+     if (!baseDatos.objectStoreNames.contains('salida')) {
+          baseDatos.createObjectStore("salida", { keyPath: 'dni' });
      }
 };
 
 $('#registrar').click(function () {
      if (!verificarFormulario()) return
-     registrarEntrada();
+     registrarEntradaSalida(
+          {
+               dni: $('#dni').val(),
+               nombre: $('#nombre').val(),
+               apellidos: $('#apellidos').val(),
+               contacto: $('#persona-contacto').val(),
+               horaEntrada: new Date().toLocaleTimeString('es-ES', { hour: "numeric", minute: "numeric" }),
+               horaSalida: '<a id="ha-salido" class="enlace-tabla">Ha salido</a>',
+          },
+          'entrada'
+     );
 });
 
 $('#reiniciar-registro').click(function () {
@@ -42,51 +52,31 @@ $('table').on('click', '#ha-salido', function () {
      $(this).parent().parent().children().remove();
 
      let peticion = baseDatos
-          .transaction("entradas", "readwrite")
-          .objectStore("entradas")
+          .transaction("entrada", "readwrite")
+          .objectStore("entrada")
           .get(dni.innerText);
 
      peticion.onsuccess = () => {
-          salida = peticion.result;
-          salida.horaSalida = new Date().toLocaleTimeString('es-ES', { hour: "numeric", minute: "numeric"});
+          registroSalida = peticion.result;
+          registroSalida.horaSalida = new Date().toLocaleTimeString('es-ES', { hour: "numeric", minute: "numeric"});
      
-          registrarSalida(salida);
+          registrarEntradaSalida(registroSalida, 'salida');
 
           baseDatos
-          .transaction("entradas", "readwrite")
-          .objectStore("entradas")
-          .delete(dni.innerText);
+               .transaction("entrada", "readwrite")
+               .objectStore("entrada")
+               .delete(dni.innerText);
      }
 });
 
-function registrarEntrada() {
-     let datosRegistroEntrada = {
-          dni: $('#dni').val(),
-          nombre: $('#nombre').val(),
-          apellidos: $('#apellidos').val(),
-          contacto: $('#persona-contacto').val(),
-          horaEntrada: new Date().toLocaleTimeString('es-ES', { hour: "numeric", minute: "numeric" }),
-          horaSalida: '<a id="ha-salido" class="enlace-tabla">Ha salido</a>',
-     }
-
+function registrarEntradaSalida(datos, tabla) {
      let insercion = baseDatos
-          .transaction("entradas", "readwrite")
-          .objectStore("entradas")
-          .put(datosRegistroEntrada);
+          .transaction(tabla, "readwrite")
+          .objectStore(tabla)
+          .put(datos);
 
      insercion.onerror = () => alert("Error al insertar los datos en la base de datos");
-     insercion.onsuccess = function () { insertarDatosTabla(datosRegistroEntrada, 'entrada') };
-}
-
-function registrarSalida(salida) {
-     let registroSalida = baseDatos
-          .transaction("salidas", "readwrite")
-          .objectStore("salidas");
-
-     let insercion = registroSalida.put(salida);
-
-     insercion.onerror = () => alert("Error al insertar los datos en la base de datos");
-     insercion.onsuccess = function () { insertarDatosTabla(salida, 'salida') };
+     insercion.onsuccess = function () { insertarDatosTabla(datos, tabla) };
 }
 
 function insertarDatosTabla(nuevoRegistro, tabla) {
@@ -104,8 +94,8 @@ function insertarDatosTabla(nuevoRegistro, tabla) {
 
 function actualizarDatosTabla() {
      let peticionRegistroEntrada = baseDatos
-          .transaction("entradas")
-          .objectStore("entradas")
+          .transaction("entrada")
+          .objectStore("entrada")
           .getAll();
 
      peticionRegistroEntrada.onsuccess = (evento) => {
@@ -115,8 +105,8 @@ function actualizarDatosTabla() {
      }
      
      let peticionRegistroSalida = baseDatos
-          .transaction("salidas")
-          .objectStore("salidas")
+          .transaction("salida")
+          .objectStore("salida")
           .getAll();
 
      peticionRegistroSalida.onsuccess = (evento) => {
