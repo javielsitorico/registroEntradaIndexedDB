@@ -3,6 +3,7 @@ let baseDatos;
 
 abrirConsulta.onsuccess = function () {
      baseDatos = abrirConsulta.result;
+     actualizarDatosTabla();
 };
 
 abrirConsulta.onerror = function () {
@@ -101,20 +102,22 @@ function insertarDatosTabla(nuevoRegistro, tabla) {
      `);
 }
 
-function atualizarDatosTabla() {
+function actualizarDatosTabla() {
      let registroEntrada = baseDatos
+          .transaction("entradas")
+          .objectStore("entradas")
+          .getAll();
+     let registroSalida = baseDatos
           .transaction("entradas")
           .objectStore("entradas");
 
-     let request = registroEntrada.openCursor();
+     let peticionRegistroEntrada = registroEntrada.openCursor();
 
-     request.onsuccess = function () {
-          let cursor = request.result;
-
+     peticionRegistroEntrada.onsuccess = function () {
+          let cursor = peticionRegistroEntrada.result;
           if (cursor) {
                let clave = cursor.key;
                let valor = cursor.value;
-
                console.log(valor);
           }
      };
