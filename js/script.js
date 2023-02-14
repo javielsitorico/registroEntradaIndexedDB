@@ -26,10 +26,13 @@ $('#registrar').click(function () {
 });
 
 $('#reiniciar-registro').click(function () {
-     let registroEntrada = baseDatos
-          .transaction("entradas", "readwrite")
-          .objectStore("entradas");
-     registroEntrada.clear();
+     baseDatos.transaction("entradas", "readwrite")
+          .objectStore("entradas")
+          .clear();
+     baseDatos.transaction("salidas", "readwrite")
+          .objectStore("salidas")
+          .clear();
+     limpiarTablas();
 });
 
 $('table').on('click', '#ha-salido', function () {
@@ -46,6 +49,11 @@ $('table').on('click', '#ha-salido', function () {
           salida.horaSalida = new Date().toLocaleTimeString('es-ES', { hour: "numeric", minute: "numeric"});
      
           registrarSalida(salida);
+
+          baseDatos
+          .transaction("entradas", "readwrite")
+          .objectStore("entradas")
+          .delete(dni.innerText);
      }
 });
 
@@ -110,6 +118,11 @@ function atualizarDatosTabla() {
                console.log(valor);
           }
      };
+}
+
+function limpiarTablas() {
+     $('#tabla-registro-entrada').empty();
+     $('#tabla-registro-salida').empty();     
 }
 
 function verificarFormulario() {
