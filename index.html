@@ -74,6 +74,7 @@
 
           .formulario form div.campos label {
                text-align: right;
+               min-width: 85px;
 
                flex: 1;
           }
@@ -174,6 +175,13 @@
                text-decoration: underline;
                font-weight: 600;
                cursor: pointer;
+          }
+          @media (max-width: 1280px) {
+               main section {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 20px;
+               }
           }
      </style>
 </head>
