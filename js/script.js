@@ -13,55 +13,92 @@ abrirConsulta.onupgradeneeded = function () {
      let baseDatos = abrirConsulta.result;
 
      if (!baseDatos.objectStoreNames.contains('entradas')) {
-          baseDatos.createObjectStore("entradas", { keyPath: 'id' });
+          baseDatos.createObjectStore("entradas", { keyPath: 'dni' });
      }
      if (!baseDatos.objectStoreNames.contains('salidas')) {
-          baseDatos.createObjectStore("salidas", { keyPath: 'id' });
+          baseDatos.createObjectStore("salidas", { keyPath: 'dni' });
      }
 };
 
-$('#registrar').click(function() {
-     if(!verificarFormulario()) return
-     registrar();
+$('#registrar').click(function () {
+     if (!verificarFormulario()) return
+     registrarEntrada();
 });
 
-$('#reiniciar-registro').click(function() {
-     let transaccion = baseDatos.transaction("entradas", "readwrite");
-     let registroEntrada = transaccion.objectStore("entradas");
+$('#reiniciar-registro').click(function () {
+     let registroEntrada = baseDatos
+          .transaction("entradas", "readwrite")
+          .objectStore("entradas");
      registroEntrada.clear();
 });
 
-function registrar() {
-     let transaccion = baseDatos.transaction("almacenObjetos", "readwrite");
-     let registroEntrada = transaccion.objectStore("almacenObjetos");
+$('table').on('click', '#ha-salido', function () {
+     let dni = $(this).parent().parent().children()[2];
+     $(this).parent().parent().children().remove();
+
+     let peticion = baseDatos
+          .transaction("entradas", "readwrite")
+          .objectStore("entradas")
+          .get(dni.innerText);
+
+     peticion.onsuccess = () => {
+          salida = peticion.result;
+          salida.horaSalida = new Date().toLocaleTimeString('es-ES', { hour: "numeric", minute: "numeric"});
+     
+          registrarSalida(salida);
+     }
+});
+
+function registrarEntrada() {
+     let registroEntrada = baseDatos
+          .transaction("entradas", "readwrite")
+          .objectStore("entradas");
 
      let nuevoRegistro = {
-          id: $('#dni').val(),
+          dni: $('#dni').val(),
           nombre: $('#nombre').val(),
           apellidos: $('#apellidos').val(),
           contacto: $('#persona-contacto').val(),
-          horaEntrada: new Date().toLocaleTimeString('es-ES', { hour: "numeric", minute: "numeric"}),
+          horaEntrada: new Date().toLocaleTimeString('es-ES', { hour: "numeric", minute: "numeric" }),
+          horaSalida: '<a id="ha-salido" class="enlace-tabla">Ha salido</a>',
      }
 
      let insercion = registroEntrada.put(nuevoRegistro);
 
-     insercion.onerror = function () { error() };
-     insercion.onsuccess = function () { exito() };
+     insercion.onerror = () => alert("Error al insertar los datos en la base de datos");
+     insercion.onsuccess = function () { insertarDatosTabla(nuevoRegistro, 'entrada') };
 }
 
-function error() {
-     console.log("Error al insertar los datos en la base de datos");
+function registrarSalida(salida) {
+     let registroSalida = baseDatos
+          .transaction("salidas", "readwrite")
+          .objectStore("salidas");
+
+     let insercion = registroSalida.put(salida);
+
+     insercion.onerror = () => alert("Error al insertar los datos en la base de datos");
+     insercion.onsuccess = function () { insertarDatosTabla(salida, 'salida') };
 }
 
-function exito() {
-     console.log("Datos intertados con éxito");
+function insertarDatosTabla(nuevoRegistro, tabla) {
+     $(`#tabla-registro-${tabla}`).append(`
+          <tr>
+               <td>${nuevoRegistro.nombre}</td>
+               <td>${nuevoRegistro.apellidos}</td>
+               <td>${nuevoRegistro.dni}</td>
+               <td>${nuevoRegistro.contacto}</td>
+               <td>${nuevoRegistro.horaEntrada}</td>
+               <td>${nuevoRegistro.horaSalida}</td>
+          </tr>
+     `);
 }
 
-function listar() {
-     let transaccion = baseDatos.transaction("almacenObjetos");
-     let almacenValores = transaccion.objectStore("almacenObjetos");
+function atualizarDatosTabla() {
+     let registroEntrada = baseDatos
+          .transaction("entradas")
+          .objectStore("entradas");
 
-     let request = almacenValores.openCursor();
+     let request = registroEntrada.openCursor();
 
      request.onsuccess = function () {
           let cursor = request.result;
@@ -69,15 +106,15 @@ function listar() {
           if (cursor) {
                let clave = cursor.key;
                let valor = cursor.value;
-               
+
                console.log(valor);
           }
      };
 }
 
 function verificarFormulario() {
-     return $('#nombre').val() != '' && 
-     $('#apellidos').val() != '' && 
-     $('#dni').val() != '' && 
-     $('#persona-contacto').val() != '';
+     return $('#nombre').val() != '' &&
+          $('#apellidos').val() != '' &&
+          $('#dni').val() != '' &&
+          $('#persona-contacto').val() != '';
 }
