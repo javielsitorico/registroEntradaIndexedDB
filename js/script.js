@@ -1,5 +1,6 @@
 let abrirConsulta = indexedDB.open("objetos", 1);
 let baseDatos;
+// Preguntar a Turi si las dos tablas es buena idea meterlas en un array para recorrerclas y hacerlo mas funcional
 
 abrirConsulta.onsuccess = function () {
      baseDatos = abrirConsulta.result;
