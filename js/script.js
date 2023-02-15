@@ -1,6 +1,12 @@
 let abrirConsulta = indexedDB.open("objetos", 1);
 let baseDatos;
-let tablas = ['entrada', 'salida']
+let tablas = ['entrada', 'salida'];
+let filtros = [
+     'dni-filtro--entrada',
+     'apellidos-filtro--entrada',
+     'dni-filtro--salida',
+     'apellidos-filtro--salida',
+]
 
 abrirConsulta.onsuccess = function () {
      baseDatos = abrirConsulta.result;
@@ -45,7 +51,9 @@ $('#reiniciar-registro').click(function () {
                .objectStore(tabla)
                .clear();
      }
-     limpiarTablas();
+     for (let tabla of tablas) {
+          limpiarTabla(tabla);
+     }
 });
 
 $('table').on('click', '#ha-salido', function () {
@@ -59,8 +67,8 @@ $('table').on('click', '#ha-salido', function () {
 
      peticion.onsuccess = () => {
           registroSalida = peticion.result;
-          registroSalida.horaSalida = new Date().toLocaleTimeString('es-ES', { hour: "numeric", minute: "numeric"});
-     
+          registroSalida.horaSalida = new Date().toLocaleTimeString('es-ES', { hour: "numeric", minute: "numeric" });
+
           registrarEntradaSalida(registroSalida, 'salida');
 
           baseDatos
@@ -70,7 +78,27 @@ $('table').on('click', '#ha-salido', function () {
      }
 });
 
+for (let filtro of filtros) {
+     $(`#${filtro}`).on("keyup", function() {
+          let tabla = filtro.split('--')[1];
+          let busqueda = filtro.split('-')[0];
 
+          let request = baseDatos
+               .transaction(tabla)
+               .objectStore(tabla)
+               .openCursor();
+
+          limpiarTabla(tabla);
+
+          request.onsuccess = function () {
+               let cursor = request.result;
+               if (cursor) {
+                    if ((cursor.value[busqueda]).includes($(`#${filtro}`).val())) insertarDatosTabla(cursor.value, tabla);
+                    cursor.continue();
+               }
+          };
+     });
+}
 
 function registrarEntradaSalida(datos, tabla) {
      let insercion = baseDatos
@@ -90,8 +118,8 @@ function actualizarDatosTabla(tabla) {
 
      request.onsuccess = function () {
           let cursor = request.result;
-          if (cursor) { 
-               insertarDatosTabla(cursor.value, 'entrada');
+          if (cursor) {
+               insertarDatosTabla(cursor.value, tabla);
                cursor.continue();
           }
      };
@@ -110,9 +138,8 @@ function insertarDatosTabla(nuevoRegistro, tabla) {
      `);
 }
 
-function limpiarTablas() {
-     $('#tabla-registro-entrada').empty();
-     $('#tabla-registro-salida').empty();     
+function limpiarTabla(tabla) {
+     $(`#tabla-registro-${tabla}`).empty();
 }
 
 function verificarFormulario() {
