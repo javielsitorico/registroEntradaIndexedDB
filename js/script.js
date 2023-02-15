@@ -1,10 +1,12 @@
 let abrirConsulta = indexedDB.open("objetos", 1);
 let baseDatos;
-// Preguntar a Turi si las dos tablas es buena idea meterlas en un array para recorrerclas y hacerlo mas funcional
+let tablas = ['entrada', 'salida']
 
 abrirConsulta.onsuccess = function () {
      baseDatos = abrirConsulta.result;
-     actualizarDatosTabla();
+     for (let tabla of tablas) {
+          actualizarDatosTabla(tabla);
+     }
 };
 
 abrirConsulta.onerror = function () {
@@ -14,11 +16,10 @@ abrirConsulta.onerror = function () {
 abrirConsulta.onupgradeneeded = function () {
      let baseDatos = abrirConsulta.result;
 
-     if (!baseDatos.objectStoreNames.contains('entrada')) {
-          baseDatos.createObjectStore("entrada", { keyPath: 'dni' });
-     }
-     if (!baseDatos.objectStoreNames.contains('salida')) {
-          baseDatos.createObjectStore("salida", { keyPath: 'dni' });
+     for (let tabla of tablas) {
+          if (!baseDatos.objectStoreNames.contains(tabla)) {
+               baseDatos.createObjectStore(tabla, { keyPath: 'dni' });
+          }
      }
 };
 
@@ -38,12 +39,12 @@ $('#registrar').click(function () {
 });
 
 $('#reiniciar-registro').click(function () {
-     baseDatos.transaction("entradas", "readwrite")
-          .objectStore("entradas")
-          .clear();
-     baseDatos.transaction("salidas", "readwrite")
-          .objectStore("salidas")
-          .clear();
+     for (let tabla of tablas) {
+          baseDatos
+               .transaction(tabla, "readwrite")
+               .objectStore(tabla)
+               .clear();
+     }
      limpiarTablas();
 });
 
@@ -69,6 +70,8 @@ $('table').on('click', '#ha-salido', function () {
      }
 });
 
+
+
 function registrarEntradaSalida(datos, tabla) {
      let insercion = baseDatos
           .transaction(tabla, "readwrite")
@@ -77,6 +80,21 @@ function registrarEntradaSalida(datos, tabla) {
 
      insercion.onerror = () => alert("Error al insertar los datos en la base de datos");
      insercion.onsuccess = function () { insertarDatosTabla(datos, tabla) };
+}
+
+function actualizarDatosTabla(tabla) {
+     let request = baseDatos
+          .transaction(tabla)
+          .objectStore(tabla)
+          .openCursor();
+
+     request.onsuccess = function () {
+          let cursor = request.result;
+          if (cursor) { 
+               insertarDatosTabla(cursor.value, 'entrada');
+               cursor.continue();
+          }
+     };
 }
 
 function insertarDatosTabla(nuevoRegistro, tabla) {
@@ -90,31 +108,6 @@ function insertarDatosTabla(nuevoRegistro, tabla) {
                <td>${nuevoRegistro.horaSalida}</td>
           </tr>
      `);
-}
-
-function actualizarDatosTabla() {
-     let peticionRegistroEntrada = baseDatos
-          .transaction("entrada")
-          .objectStore("entrada")
-          .getAll();
-
-     peticionRegistroEntrada.onsuccess = (evento) => {
-          for (let registro of evento.target.result) {
-               insertarDatosTabla(registro, 'entrada')
-          }
-     }
-     
-     let peticionRegistroSalida = baseDatos
-          .transaction("salida")
-          .objectStore("salida")
-          .getAll();
-
-     peticionRegistroSalida.onsuccess = (evento) => {
-          for (let registro of evento.target.result) {
-               insertarDatosTabla(registro, 'salida')
-          }
-     }
-     
 }
 
 function limpiarTablas() {
