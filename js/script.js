@@ -24,7 +24,8 @@ abrirConsulta.onupgradeneeded = function () {
 
      for (let tabla of tablas) {
           if (!baseDatos.objectStoreNames.contains(tabla)) {
-               baseDatos.createObjectStore(tabla, { keyPath: 'dni' });
+               let registro = baseDatos.createObjectStore(tabla, { keyPath: 'dni' });
+               registro.createIndex('indiceDni', 'apellidos', {multiEntry: true, unique: false});
           }
      }
 };
@@ -83,15 +84,19 @@ for (let filtro of filtros) {
           let tabla = filtro.split('--')[1];
           let busqueda = filtro.split('-')[0];
 
-          let request = baseDatos
+          let datosTabla = baseDatos
                .transaction(tabla)
-               .objectStore(tabla)
-               .openCursor();
+               .objectStore(tabla);
+
+          let peticion;
+
+          if(busqueda != 'dni') { peticion = datosTabla.index('indiceDni').openCursor(); }
+          else { peticion = datosTabla.openCursor(); }
 
           limpiarTabla(tabla);
 
-          request.onsuccess = function () {
-               let cursor = request.result;
+          peticion.onsuccess = function () {
+               let cursor = peticion.result;
                if (cursor) {
                     if ((cursor.value[busqueda]).includes($(`#${filtro}`).val())) insertarDatosTabla(cursor.value, tabla);
                     cursor.continue();
